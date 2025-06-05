@@ -168,7 +168,42 @@ curl -X POST http://127.0.0.1:8000/ \
   }'
 ```
 
+## Using Postman 
 
+📤 Endpoint
+```nginx
+Copy
+Edit
+POST http://127.0.0.1:8000/
+```
+📦 Request Headers
+http
+Copy
+Edit
+Content-Type: application/json
+📝 Example Payload
+json
+Copy
+Edit
+{
+  "jsonrpc": "2.0",
+  "id": "test_001",
+  "method": "tasks/send",
+  "params": {
+    "id": "task_001",
+    "sessionId": "session_001",
+    "acceptedOutputModes": ["text"],
+    "message": {
+      "role": "user",
+      "parts": [
+        {
+          "type": "text",
+          "text": "Explain the difference between Mixture of Experts and Dense Feed Forward Networks"
+        }
+      ]
+    }
+  }
+}
 
 
 ### Customizing the Agent
