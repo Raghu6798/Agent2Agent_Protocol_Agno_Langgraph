@@ -25,7 +25,6 @@ The YouTube Agent is a multimodal autonomous agent designed to:
 1. 
 1. First, clone the repository and Navigate to the agno agents agent directory:
 ```
-
 git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
 
 cd Agent2Agent_Protocol_Implementation/agno_agents/:
