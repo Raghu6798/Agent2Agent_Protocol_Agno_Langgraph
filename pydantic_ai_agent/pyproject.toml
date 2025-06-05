@@ -5,5 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fasta2a>=0.2.14",
     "pydantic-ai>=0.2.14",
+    "pydantic-ai-slim[a2a,openai]>=0.2.14",
+    "uvicorn>=0.34.2",
 ]
