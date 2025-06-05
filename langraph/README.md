@@ -1,31 +1,29 @@
-# 🧠 Langraph Agent – Agent2Agent Protocol Implementation
+# 🧮 Langraph Addition Agent
 
-This agent is part of the Langraph Agents implementation under the Agent2Agent Protocol using JSON-RPC 2.0. The Langraph Agent leverages the powerful Langraph framework for advanced agent orchestration, workflow management, and complex multi-agent interactions.
+A simple arithmetic agent built with Langraph that specializes in addition operations. This agent is part of the Agent2Agent Protocol implementation using JSON-RPC 2.0.
 
-## 🎯 What Does the Langraph Agent Do?
+## 🎯 What Does the Addition Agent Do?
 
-The Langraph Agent is a sophisticated autonomous agent system designed to:
-- Orchestrate complex multi-agent workflows using Langraph's graph-based architecture
-- Manage state and context across agent interactions
-- Execute parallel and sequential agent tasks
-- Handle complex reasoning chains and decision trees
-- Provide robust error handling and recovery mechanisms
+The agent is a focused arithmetic assistant that:
+- Performs addition operations using a dedicated calculator tool
+- Uses Google's Gemini 2.0 Flash model for natural language understanding
+- Provides clear, step-by-step calculation explanations
+- Handles basic addition requests with proper error handling
 
-> ℹ️ This agent is built on the Langraph framework, enabling powerful graph-based agent orchestration and workflow management.
+> ℹ️ This agent is built using Langraph and Google's Gemini model, specifically designed for addition operations.
 
 ## 🚀 Getting Started
 
 ### ✅ Prerequisites
 - Python 3.8+
 - [uv](https://github.com/astral-sh/uv) package manager
-- Dependencies from root `pyproject.toml`
-- OpenAI API Key (set in `.env` as `OPENAI_API_KEY`)
+- Google API Key (set in `.env` as `GOOGLE_API_KEY`)
 
 ### 🛠️ Running the Agent Server
 
 1. Navigate to the agent directory:
    ```bash
-   cd a2a_poc/langraph
+   cd Agent2Agent_Protocol_Implementation/langraph
    ```
 
 2. Start the server:
@@ -52,21 +50,20 @@ langraph/langgraph_agent.py
 
 ### Key Methods
 
-#### `.invoke(query: str, session_id: str = None) -> dict`
-Processes a request through the Langraph workflow and returns structured results.
+#### `.invoke(query: str, session_id: str) -> str`
+Processes an addition request and returns the result.
 
-Returns a response object containing:
-- `status`: Current execution status
-- `result`: The processed result
-- `workflow_state`: Current state of the workflow
-- `metadata`: Additional execution metadata
+Example:
+```python
+result = agent.invoke("What's 5 plus 3?", "session_123")
+# Returns: "Let me calculate that for you...\n5 + 3 = 8\nThe sum is 8"
+```
 
-#### `.stream(query: str, session_id: str = None) -> AsyncIterator[dict]`
-Streams workflow execution updates in real-time.
-- Emits state transitions
-- Workflow progress updates
-- Intermediate results
-- Error states and recovery attempts
+#### `.stream(query: str, sessionId: str) -> AsyncIterator[dict]`
+Streams the calculation process in real-time, showing:
+- When the calculation starts
+- Tool usage status
+- Final result
 
 ## 📤 API Usage
 
@@ -81,46 +78,40 @@ curl -X POST http://127.0.0.1:8000/ \
   -d '{
     "jsonrpc": "2.0",
     "id": "test_001",
-    "method": "workflow/execute",
+    "method": "calculate",
     "params": {
-      "id": "workflow_001",
-      "sessionId": "session_001",
-      "workflow": {
-        "type": "sequential",
-        "steps": [
-          {
-            "agent": "reasoning",
-            "input": "Analyze the following problem: ..."
-          },
-          {
-            "agent": "execution",
-            "input": "Based on the analysis, execute the following steps: ..."
-          }
-        ]
-      }
+      "query": "What is 7 plus 4?",
+      "sessionId": "session_001"
     }
   }'
 ```
 
 ### 📥 Supported Content Types
-The Langraph Agent supports the following MIME types:
-- `application/json`
+- `text`
 - `text/plain`
 
-## 🧠 Implementation Notes
+## 🧠 How It Works
 
-- Built on Langraph's graph-based architecture for flexible workflow management
-- Supports both sequential and parallel agent execution
-- Implements robust state management and context preservation
-- Provides comprehensive error handling and recovery mechanisms
-- Enables dynamic workflow modification during execution
+1. **Input Processing**
+   - Receives natural language addition requests
+   - Uses Gemini model to understand the request
+   - Extracts numbers to be added
+
+2. **Calculation**
+   - Uses the `add_two_numbers` tool for actual calculation
+   - Provides step-by-step explanation
+   - Returns formatted result
+
+3. **Response Format**
+   - Starts with "Let me calculate that for you..."
+   - Shows the calculation process
+   - Ends with the final sum
 
 ## 📁 Project Structure
 
 | File | Purpose |
 |------|---------|
-| `langgraph_agent.py` | Core agent implementation using Langraph |
-| `lang_agent_executor.py` | Langraph workflow execution logic |
+| `langgraph_agent.py` | Core addition agent implementation |
 | `__main__.py` | Server entry point |
 | `test_client.py` | Test client for local testing |
 | `.env` | API keys and environment variables |
@@ -129,98 +120,35 @@ The Langraph Agent supports the following MIME types:
 
 Create a `.env` file in the project root with:
 ```env
-OPENAI_API_KEY=your_api_key_here
-LANGCHAIN_API_KEY=your_langchain_key_here  # Optional
+GOOGLE_API_KEY=your_google_api_key_here
 ```
 
-## 📊 Workflow Types
+## 📝 Example Usage
 
-The agent supports several workflow patterns:
-
-1. **Sequential Workflows**
-   - Linear execution of agent steps
-   - State preservation between steps
-   - Conditional branching
-
-2. **Parallel Workflows**
-   - Concurrent agent execution
-   - Result aggregation
-   - Resource optimization
-
-3. **Graph-based Workflows**
-   - Complex agent interaction patterns
-   - Dynamic routing
-   - State management across nodes
-
-## 📝 Additional Resources
-
-- [Langraph Documentation](https://python.langchain.com/docs/langgraph)
-- [LangChain Documentation](https://python.langchain.com/docs/get_started/introduction)
-- [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
-
-## 🔍 Example Workflows
-
-### Basic Sequential Workflow
+### Basic Addition
 ```python
-workflow = {
-    "type": "sequential",
-    "steps": [
-        {
-            "agent": "analyzer",
-            "input": "Initial analysis task"
-        },
-        {
-            "agent": "executor",
-            "input": "Execute based on analysis"
-        }
-    ]
-}
+# Input
+"What's 5 plus 3?"
+
+# Output
+"Let me calculate that for you...
+5 + 3 = 8
+The sum is 8"
 ```
 
-### Parallel Workflow
+### Error Handling
 ```python
-workflow = {
-    "type": "parallel",
-    "branches": [
-        {
-            "agent": "researcher",
-            "input": "Research task 1"
-        },
-        {
-            "agent": "researcher",
-            "input": "Research task 2"
-        }
-    ],
-    "aggregator": "merge_results"
-}
+# Input
+"What's 5 times 3?"
+
+# Output
+"I'm sorry, I can only handle addition operations. Please use a different tool for multiplication."
 ```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. When contributing:
-1. Follow the existing code style
-2. Add tests for new features
-3. Update documentation as needed
-4. Ensure all workflows are properly typed
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🔄 State Management
-
-The agent implements sophisticated state management:
-- Persistent session states
-- Workflow state tracking
-- Context preservation
-- Error state recovery
-- State serialization and deserialization
-
-## 🛡️ Error Handling
-
-Comprehensive error handling includes:
-- Workflow validation
-- Agent execution errors
-- State recovery
-- Timeout management
-- Resource cleanup
