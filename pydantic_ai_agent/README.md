@@ -142,47 +142,7 @@ The server returns responses in the following format:
 
 ## 🧪 Testing the Server
 
-### Method 1: Using the Provided Client Script
-
-```python
-import requests
-from uuid import uuid4
-import json
-
-url = "http://127.0.0.1:8000/"
-query = input("What do you want to send to the Agent: ")
-
-payload = {
-    "jsonrpc": "2.0",
-    "id": str(uuid4()),  # Generate unique request ID
-    "method": "tasks/send",
-    "params": {
-        "id": str(uuid4()),  # Generate unique task ID
-        "sessionId": str(uuid4()),  # Generate unique session ID
-        "acceptedOutputModes": ["text"],
-        "message": {
-            "role": "user",
-            "parts": [
-                {
-                    "type": "text",
-                    "text": query
-                }
-            ]
-        }
-    }
-}
-
-headers = {"Content-Type": "application/json"}
-response = requests.post(url, headers=headers, json=payload)
-
-print("Status Code:", response.status_code)
-try:
-    print("Response JSON:", json.dumps(response.json(), indent=2))
-except json.JSONDecodeError:
-    print("Response Text:", response.text)
-```
-
-### Method 2: Using cURL
+### Using cURL
 
 ```bash
 curl -X POST http://127.0.0.1:8000/ \
@@ -208,78 +168,8 @@ curl -X POST http://127.0.0.1:8000/ \
   }'
 ```
 
-### Method 3: Using Python Requests (Interactive)
 
-```python
-import requests
-import json
-from uuid import uuid4
 
-def send_message_to_agent(message_text):
-    url = "http://127.0.0.1:8000/"
-    
-    payload = {
-        "jsonrpc": "2.0",
-        "id": str(uuid4()),
-        "method": "tasks/send",
-        "params": {
-            "id": str(uuid4()),
-            "sessionId": str(uuid4()),
-            "acceptedOutputModes": ["text"],
-            "message": {
-                "role": "user",
-                "parts": [
-                    {
-                        "type": "text",
-                        "text": message_text
-                    }
-                ]
-            }
-        }
-    }
-    
-    headers = {"Content-Type": "application/json"}
-    
-    try:
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        
-        result = response.json()
-        
-        # Extract the agent's response
-        if "result" in result and "artifacts" in result["result"]:
-            agent_response = result["result"]["artifacts"][0]["parts"][0]["text"]
-            print(f"Agent Response: {agent_response}")
-        else:
-            print(f"Full Response: {json.dumps(result, indent=2)}")
-            
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-    except json.JSONDecodeError as e:
-        print(f"JSON decode error: {e}")
-        print(f"Response text: {response.text}")
-
-# Example usage
-send_message_to_agent("What are the key advantages of transformer architectures?")
-```
-
-## 🔧 Server Configuration
-
-The server is configured with:
-
-```python
-model = OpenAIModel(
-    'anthropic/claude-3.5-haiku',
-    provider=OpenRouterProvider(api_key=os.getenv('OPENROUTER_API_KEY')),
-)
-
-agent = Agent(
-    model,
-    system_prompt='Be concise, reply with one sentence.',
-)
-
-app = agent.to_a2a()
-```
 
 ### Customizing the Agent
 
