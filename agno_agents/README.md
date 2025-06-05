@@ -24,7 +24,7 @@ The YouTube Agent is a multimodal autonomous agent designed to:
 
 1. Navigate to the agent directory:
    ```bash
-   cd a2a_poc/agno_agents
+   cd agno_agents
    ```
 
 2. Start the server:
