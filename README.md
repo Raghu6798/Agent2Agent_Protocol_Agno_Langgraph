@@ -1,6 +1,6 @@
 # Agent2Agent Protocol (A2A)
 
-![A2A Protocol](https://placeholder.com/banner.png) <!-- Add actual banner image if available -->
+![[A2A Protocol](https://placeholder.com/banner.png) ](https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/image5_VkAG0Kd.original.png)<!-- Add actual banner image if available -->
 
 An open protocol enabling communication and interoperability between opaque agentic applications.
 
