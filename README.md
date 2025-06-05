@@ -1,4 +1,4 @@
-# Agent2Agent Protocol (A2A)
+# Custom Agent2Agent Protocol (A2A)
 
 This repository contains multiple implementations of the Agent2Agent Protocol using different frameworks. Each agent implementation runs as a JSON-RPC 2.0 server on `localhost:10000` and can be tested using their respective client applications.
 
