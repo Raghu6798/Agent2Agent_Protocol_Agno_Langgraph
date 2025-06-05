@@ -172,15 +172,15 @@ curl -X POST http://127.0.0.1:8000/ \
 
 📤 Endpoint
 ```nginx
-Copy
-Edit
 POST http://127.0.0.1:8000/
 ```
 📦 Request Headers
+```
 http
 Copy
 Edit
 Content-Type: application/json
+```
 📝 Example Payload
 json
 Copy
