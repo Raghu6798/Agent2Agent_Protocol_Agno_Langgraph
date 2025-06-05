@@ -1,4 +1,4 @@
-# 🧮 Langraph Addition Agent
+#  Langraph Addition Agent
 
 A simple arithmetic agent built with Langraph that specializes in addition operations. This agent is part of the Agent2Agent Protocol implementation using JSON-RPC 2.0.
 
