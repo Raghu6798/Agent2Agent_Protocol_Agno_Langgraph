@@ -22,10 +22,14 @@ The YouTube Agent is a multimodal autonomous agent designed to:
 
 ### 🛠️ Running the Agent Server
 
-1. Navigate to the agent directory:
-   ```bash
-   cd Agent2Agent_Protocol_Implementation/agno_agents/
-   ```
+1. 
+1. First, clone the repository and Navigate to the agno agents agent directory:
+```
+
+git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
+
+cd Agent2Agent_Protocol_Implementation/agno_agents/:
+```
 
 2. Start the server:
    ```bash
