@@ -23,7 +23,6 @@ Each agent implementation is located in its own directory. To run any agent:
 
 1. First, clone the repository:
 ```
-bash
 git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
 cd Agent2Agent_Protocol_Implementation/<agent_directory>:
 ```
