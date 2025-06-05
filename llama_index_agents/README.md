@@ -21,10 +21,12 @@ The agent is a specialized marketing assistant that:
 
 ### 🛠️ Running the Agent Server
 
-1. Navigate to the agent directory:
-   ```bash
-   cd a2a_poc/llama_index_agents
-   ```
+1. First, clone the repository and Navigate to the llama_index agent directory::
+```
+git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
+
+cd Agent2Agent_Protocol_Implementation/lama_index_agents:
+```
 
 2. Start the server:
    ```bash
