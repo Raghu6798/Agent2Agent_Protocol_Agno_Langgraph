@@ -21,10 +21,12 @@ implementations:
 
 Each agent implementation is located in its own directory. To run any agent:
 
-1. Navigate to the agent's directory:
-   ```bash
-   cd <agent_directory>
-   ```
+1. First, clone the repository:
+```
+bash
+git clone <repository_url>
+cd Agent2Agent_Protocol_Implementation/<agent_directory>:
+```
 
 2. Start the agent server:
    ```bash
