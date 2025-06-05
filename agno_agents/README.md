@@ -1,58 +1,140 @@
-# Agno Agents Implementation
+# 🧠 YouTube Agent – Agno Agent Implementation
 
-This directory contains the Agno Agents implementation of the Agent2Agent Protocol using JSON-RPC 2.0.
+This agent is part of the Agno Agents implementation under the Agent2Agent Protocol using JSON-RPC 2.0. The YouTube Agent performs intelligent video analysis by leveraging tool-based data retrieval and the Cerebras language model.
 
-## Overview
+## 🎯 What Does the YouTube Agent Do?
 
-The Agno Agents implementation provides a robust agent system using the Agno framework, featuring:
-- JSON-RPC 2.0 server implementation
-- Custom agent executor
-- Comprehensive test client
+The YouTube Agent is a multimodal autonomous agent designed to:
+- Retrieve YouTube video metadata and captions using Agno tools
+- Analyze video structure, themes, and timestamps
+- Generate detailed, human-readable markdown summaries of YouTube content
+- Follow strict step-by-step logic for consistent analysis quality
 
-## Prerequisites
+> ℹ️ This agent is built with Cerebras as the LLM backend and uses YouTubeTools for interacting with video data.
 
-- Python 3.8 or higher
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+- Python 3.8+
 - [uv](https://github.com/astral-sh/uv) package manager
-- Dependencies specified in `pyproject.toml`
+- API Key for Cerebras (set in `.env` as `CEREBRAS_API_KEY`)
+- Dependencies from `pyproject.toml`
 
-## Running the Agent Server
+### 🛠️ Running the Agent Server
 
-1. Make sure you're in the agno_agents directory:
+1. Navigate to the agent directory:
    ```bash
    cd a2a_poc/agno_agents
    ```
 
-2. Start the agent server:
+2. Start the server:
    ```bash
    uv run .
    ```
 
-The server will start on `localhost:10000`.
+📡 The server will run on `http://localhost:10000`
 
-## Testing the Agent
+### 🧪 Testing the Agent
 
-1. Ensure the agent server is running (see above)
-2. In a new terminal, navigate to the agno_agents directory
-3. Run the test client:
-   ```bash
-   uv run test_agno_client.py
-   ```
+Run the test client in a new terminal to simulate a JSON-RPC request:
+```bash
+uv run test_agno_client.py
+```
 
-## Implementation Details
+## 🔧 Implementation Details
 
-- `agno_agent.py`: Core agent implementation
-- `agno_agent_executor.py`: Custom executor for the agent
-- `__main__.py`: Server entry point
-- `test_agno_client.py`: Test client with example requests
+### Code Location
+The agent is defined in:
+```bash
+agno_agents/youtube_agent.py
+```
 
-## Available Methods
+### Key Methods
 
-The agent server implements the following JSON-RPC 2.0 methods:
-- `process_request`: Main method for processing agent requests
-- Additional methods as documented in the test client
+#### `.invoke(query: str, session_id: str = None) -> list[dict]`
+Synchronously processes a YouTube URL and returns structured markdown analysis.
 
-## Notes
+Returns a list of response segments, each containing:
+- `is_task_complete`: Whether the task is done
+- `require_user_input`: If further input is needed
+- `content`: The actual markdown analysis or message
 
-- The agent server must be running before using the test client
-- Check the test client implementation for example requests and responses
-- The agent uses the Agno framework for enhanced agent capabilities
+#### `.stream(query: str, session_id: str = None) -> Iterator[dict]`
+Streams response chunks while the video is being analyzed.
+- Emits tool usage
+- Content updates
+- Final completion status
+
+## 📤 API Usage
+
+### JSON-RPC 2.0 Interface
+
+The agent can be accessed via the JSON-RPC 2.0 interface.
+
+#### Sample Request
+```bash
+curl -X POST http://127.0.0.1:8000/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "test_001",
+    "method": "tasks/send",
+    "params": {
+      "id": "task_001",
+      "sessionId": "session_001",
+      "acceptedOutputModes": ["text"],
+      "message": {
+        "role": "user",
+        "parts": [
+          {
+            "type": "text",
+            "text": "Analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          }
+        ]
+      }
+    }
+  }'
+```
+
+### 📥 Supported Content Types
+The YouTube Agent supports the following MIME types:
+- `text`
+- `text/plain`
+
+## 🧠 Implementation Notes
+
+- The agent never proceeds without fetching both video metadata and captions
+- All results are markdown-formatted for clarity
+- Built on top of the Agno framework, enabling flexible agent behavior and tool usage
+- Responses are structured as lists of JSON objects for integration with frontend or downstream pipelines
+
+## 📁 Project Structure
+
+| File | Purpose |
+|------|---------|
+| `youtube_agent.py` | YouTube-specific agent logic |
+| `agno_agent_executor.py` | Custom execution logic for agents |
+| `__main__.py` | Server entry point |
+| `test_agno_client.py` | Simulated client for local testing |
+| `.env` | API keys and environment variables |
+
+## 🔐 Environment Setup
+
+Create a `.env` file in the project root with:
+```env
+CEREBRAS_API_KEY=your_api_key_here
+```
+
+## 📝 Additional Resources
+
+- [Agno Framework Documentation](https://github.com/agno-ai/agno)
+- [Cerebras API Documentation](https://docs.cerebras.net)
+- [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
