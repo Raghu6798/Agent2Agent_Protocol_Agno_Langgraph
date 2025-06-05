@@ -174,17 +174,15 @@ curl -X POST http://127.0.0.1:8000/ \
 ```nginx
 POST http://127.0.0.1:8000/
 ```
+
 📦 Request Headers
 ```
-http
-Copy
-Edit
 Content-Type: application/json
 ```
+
 📝 Example Payload
+```
 json
-Copy
-Edit
 {
   "jsonrpc": "2.0",
   "id": "test_001",
@@ -204,6 +202,36 @@ Edit
     }
   }
 }
+```
+
+### ✅ Expected Response (on success)
+```
+json
+{
+  "jsonrpc": "2.0",
+  "id": "req_001",
+  "result": {
+    "id": "task_001",
+    "sessionId": "session_001",
+    "status": {
+      "state": "completed",
+      "timestamp": "2025-06-05T20:41:02.893321"
+    },
+    "artifacts": [
+      {
+        "name": "result",
+        "index": 0,
+        "parts": [
+          {
+            "type": "text",
+            "text": "Mixture of Experts (MoE) uses sparse activation where only a subset of parameters are active per input, while Dense FFN activates all parameters, making MoE more parameter-efficient and scalable."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
 
 ### Customizing the Agent
