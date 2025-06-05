@@ -8,7 +8,7 @@ The agent is a specialized marketing assistant that:
 - Generates professional product images using AI
 - Creates optimized marketing prompts
 - Handles complete brand image generation workflows
-- Uses Together AI's FLUX.1 model for image generation
+- Uses Together AI's FLUX.1.1[Schnell] model for image generation
 - Leverages Llama 3.3 8B for natural language understanding
 
 ## 🚀 Getting Started
