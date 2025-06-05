@@ -21,10 +21,12 @@ The agent is a focused arithmetic assistant that:
 
 ### 🛠️ Running the Agent Server
 
-1. Navigate to the agent directory:
-   ```bash
-   cd Agent2Agent_Protocol_Implementation/langraph
-   ```
+1. 1. First, clone the repository and Navigate to the langgraph agents repo :
+```
+git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
+
+cd Agent2Agent_Protocol_Implementation/langraph:
+```
 
 2. Start the server:
    ```bash
