@@ -1,32 +1,41 @@
-# Custom Agent2Agent Protocol (A2A)
+# Agent2Agent Protocol (A2A)
 
-What exactly is the hyper around Agent2Agent Prootocol : An open protocol enabling communication and interoperability between opaque agentic applications.
+![A2A Protocol](https://placeholder.com/banner.png) <!-- Add actual banner image if available -->
 
-The Agent2Agent (A2A) protocol addresses a critical challenge in the AI landscape: enabling gen AI agents, built on diverse frameworks by different companies running on separate servers, to communicate and collaborate effectively - as agents, not just as tools. A2A aims to provide a common language for agents, fostering a more interconnected, powerful, and innovative AI ecosystem.
+An open protocol enabling communication and interoperability between opaque agentic applications.
 
-Why A2A?
-As AI agents become more prevalent, their ability to interoperate is crucial for building complex, multi-functional applications. A2A aims to:
+## 🌟 What's the Hype About?
 
-Break Down Silos: Connect agents across different ecosystems
+The Agent2Agent (A2A) protocol addresses a critical challenge in the AI landscape: enabling gen AI agents, built on diverse frameworks by different companies running on separate servers, to communicate and collaborate effectively - as **agents**, not just as tools. A2A provides a common language for agents, fostering a more interconnected, powerful, and innovative AI ecosystem.
 
-Enable Complex Collaboration: Allow specialized agents to work together on tasks that a single agent cannot handle alone
+## 🚀 Why A2A?
 
-Promote Open Standards: Foster a community-driven approach to agent communication
+As AI agents become more prevalent, their ability to interoperate is crucial for building complex, multi-functional applications:
 
-Preserve Opacity: Allow agents to collaborate without exposing internal state or proprietary logic
+| Key Benefit | Description |
+|-------------|-------------|
+| **Break Down Silos** | Connect agents across different ecosystems |
+| **Enable Complex Collaboration** | Allow specialized agents to work together on tasks beyond single-agent capabilities |
+| **Promote Open Standards** | Foster community-driven agent communication |
+| **Preserve Opacity** | Collaborate without exposing internal state or proprietary logic |
 
-Key Features
-Standardized Communication: JSON-RPC 2.0 over HTTP(S)
+## 🔑 Key Features
 
-Agent Discovery: Via /.well-known/agent.json endpoint and "Agent Cards"
-
-Flexible Interaction: Supports synchronous, streaming (SSE), and asynchronous modes
-
-Rich Data Exchange: Handles text, files, and structured JSON data
-
-Enterprise-Ready: Designed with security and observability in mind
-This repository contains multiple implementations of the Agent2Agent Protocol using different frameworks. Each agent implementation runs as a JSON-RPC 2.0 server on `localhost:10000` and can be tested using their respective client applications.
-
+```mermaid
+graph TD
+    A[Standardized Communication] --> B[JSON-RPC 2.0 over HTTP(S)]
+    A --> C[Agent Discovery]
+    C --> D[/.well-known/agent.json/]
+    C --> E[Agent Cards]
+    A --> F[Flexible Interaction]
+    F --> G[Synchronous]
+    F --> H[Streaming (SSE)]
+    F --> I[Asynchronous]
+    A --> J[Rich Data Exchange]
+    J --> K[Text]
+    J --> L[Files]
+    J --> M[Structured JSON]
+```
 ## Prerequisites
 
 - Python 3.8 or higher
