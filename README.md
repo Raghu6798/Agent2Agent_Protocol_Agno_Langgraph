@@ -9,7 +9,8 @@ This repository contains multiple implementations of the Agent2Agent Protocol us
 
 ## Available Agents
 
-The repository contains the following agent implementations:
+The repository contains the following agentic framework 
+implementations:
 
 1. Agno Agents
 2. Langraph Agents
