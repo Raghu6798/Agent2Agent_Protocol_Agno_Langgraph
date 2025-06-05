@@ -22,7 +22,7 @@ Each agent implementation is located in its own directory. To run any agent:
 
 1. Navigate to the agent's directory:
    ```bash
-   cd a2a_poc/<agent_directory>
+   cd <agent_directory>
    ```
 
 2. Start the agent server:
@@ -47,21 +47,21 @@ Each agent implementation comes with a test client that can send JSON-RPC 2.0 re
 
 #### Agno Agents
 ```bash
-cd a2a_poc/agno_agents
+cd agno_agents
 uv run .  # Start server
 uv run test_agno_client.py  # Run client
 ```
 
 #### Langraph Agents
 ```bash
-cd a2a_poc/langraph
+cd langraph
 uv run .  # Start server
 uv run test_client.py  # Run client
 ```
 
 #### LlamaIndex Agents
 ```bash
-cd a2a_poc/llama_index_agents
+cd llama_index_agents
 uv run .  # Start server
 uv run test_client.py  # Run client
 ```
