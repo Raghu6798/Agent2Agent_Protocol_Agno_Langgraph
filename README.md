@@ -19,23 +19,6 @@ As AI agents become more prevalent, their ability to interoperate is crucial for
 | **Promote Open Standards** | Foster community-driven agent communication |
 | **Preserve Opacity** | Collaborate without exposing internal state or proprietary logic |
 
-## 🔑 Key Features
-
-```mermaid
-graph TD
-    A[Standardized Communication] --> B[JSON-RPC 2.0 over HTTP(S)]
-    A --> C[Agent Discovery]
-    C --> D[/.well-known/agent.json/]
-    C --> E[Agent Cards]
-    A --> F[Flexible Interaction]
-    F --> G[Synchronous]
-    F --> H[Streaming (SSE)]
-    F --> I[Asynchronous]
-    A --> J[Rich Data Exchange]
-    J --> K[Text]
-    J --> L[Files]
-    J --> M[Structured JSON]
-```
 ## Prerequisites
 
 - Python 3.8 or higher
