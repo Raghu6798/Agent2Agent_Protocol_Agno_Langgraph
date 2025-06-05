@@ -88,7 +88,7 @@ curl -X POST http://127.0.0.1:8000/ \
         "parts": [
           {
             "type": "text",
-            "text": "Analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            "text": "I need you to help me summarize this video : [https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://youtu.be/oWZbcq_figk?si=NWTivR8jm9xQJSrJ)"
           }
         ]
       }
