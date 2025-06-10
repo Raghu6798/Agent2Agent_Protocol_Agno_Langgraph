@@ -1,174 +1,111 @@
+import asyncio
 import os
-from uuid import uuid4
-from typing import Annotated, AsyncIterable, Dict, Any
-from langchain_core.messages import AIMessage, ToolMessage, HumanMessage
-from langchain_core.tools import tool
-from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import BaseModel
-from loguru import logger
 from dotenv import load_dotenv
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.prebuilt import create_react_agent
+from typing import List, TypedDict, Annotated
 
+from loguru import logger
+from langchain_mistralai import ChatMistralAI
+from langchain_core.messages import HumanMessage, BaseMessage
+from langgraph.graph import StateGraph, START, END
+from langgraph.types import CachePolicy
+from langgraph.graph.message import add_messages
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.prebuilt import ToolNode
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+# Load environment variables
 load_dotenv()
 
-os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+# Setup logging configuration (optional: change format or level here)
+logger.add(
+    "ors_agent.log",
+    rotation="10 MB",  # or time-based like "00:00" daily rotation
+    retention="10 days",
+    enqueue=True,     # Enable thread/process safe logging
+    backtrace=True,
+    diagnose=True,
+)  # Save logs to file
 
-memory = InMemorySaver()
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+logger.info(f"MISTRAL_API_KEY loaded: {'Yes' if MISTRAL_API_KEY else 'No'}")
+if MISTRAL_API_KEY:
+    logger.info(f"MISTRAL_API_KEY starts with: {MISTRAL_API_KEY[:10]}...")
+else:
+    logger.error("MISTRAL_API_KEY environment variable not set.")
+    raise ValueError("MISTRAL_API_KEY environment variable not set. Please set it in your .env file.")
 
-class ResponseSchema(BaseModel):
-    response: str
+ORS_SERVER_PATH = os.path.join(os.path.dirname(__file__), "ors_mcp_server.py")
 
-@tool
-def add_two_numbers(
-    a: Annotated[int, "The first number to add"],
-    b: Annotated[int, "The second number to add"]
-) -> Annotated[int, "The sum of the two numbers"]:
-    """
-    Adds two integers together and returns the result.
-    
-    Examples:
-        >>> add_two_numbers(2, 3)
-        5
-        >>> add_two_numbers(-1, 1)
-        0
-    """
-    logger.info(f"Adding {a} + {b}")
-    result = a + b
-    logger.info(f"Result: {result}")
-    return result
+class AgentState(TypedDict):
+    messages: Annotated[List[BaseMessage], add_messages]
 
-SYSTEM_PROMPTS = """You are a precise arithmetic assistant that specializes in basic math operations. 
+async def run_ors_agent():
+    logger.info("Initializing ORS FastMCP server connection...")
+    mcp_client = MultiServerMCPClient(
+        {
+           "geo_pal": {
+            "url": "https://server.smithery.ai/@Raghu6798/geopal_traveling_and_logistics/mcp?api_key=e3b06a92-b690-4c3a-9e46-fa480791e61b&profile=cognitive-weasel-8FCgUK",
+            "transport": "streamable_http",
+        }
+        }
+    )
 
-## Instructions:
-1. You have access to a calculator tool that can add two numbers
-2. When given a math problem:
-   - First determine if it requires addition
-   - Extract the exact numbers from the request
-   - Always use the add_two_numbers tool for calculations
-   - Present the result clearly
-3. For non-addition requests:
-   - Politely explain you only handle addition
-   - Suggest using a different tool for other operations
+    logger.info("Loading ORS tools from FastMCP server...")
+    tools = await mcp_client.get_tools(server_name="geo_pal")
+    logger.debug(f"Loaded {len(tools)} tools: {[t.name for t in tools]}")
 
-## Response Format:
-- Start with "Let me calculate that for you..."
-- Show the calculation process
-- End with a clear result
+    logger.info("Initializing Mistral AI model...")
+    model = ChatMistralAI(
+        model="mistral-small-latest",
+        api_key=MISTRAL_API_KEY
+    )
+    logger.info("Mistral AI model initialized successfully")
+    model_with_tools = model.bind_tools(tools)
 
-## Examples:
-User: What's 5 plus 3?
-Assistant: Let me calculate that for you...
-[Using calculator tool]
-5 + 3 = 8
-The sum is 8
-"""
+    def call_model(state: AgentState):
+        messages = state["messages"]
+        logger.debug(f"Calling model with messages: {messages}")
+        response = model_with_tools.invoke(messages)
+        return {"messages": response}
 
-class AdditionAgent:
-    def __init__(self):
-        self.model = ChatGoogleGenerativeAI(model='gemini-2.0-flash')
-        self.tools = [add_two_numbers]
-        self.graph = create_react_agent(
-            model=self.model,
-            tools=self.tools,
-            prompt=SYSTEM_PROMPTS,
-            checkpointer=memory,
-        )
+    tool_node = ToolNode(tools)
 
-    def invoke(self, query, session_id) -> str:
-        config = {'configurable': {'thread_id': session_id}}
-        
-        messages = [HumanMessage(content=query)]
-        
-        try:
-            result = self.graph.invoke(
-                {"messages": messages},
-                config
-            )
-            
-            if result and 'messages' in result:
-                for message in reversed(result['messages']):
-                    if hasattr(message, 'content') and message.content:
-                        return message.content
-                    elif isinstance(message, dict) and 'content' in message:
-                        return message['content']
-            
-            return "Unable to process the request."
-        
-        except Exception as e:
-            logger.error(f"Error in invoke: {e}")
-            return f"Error occurred: {str(e)}"
+    builder = StateGraph(AgentState)
+    builder.add_node("llm", call_model)
+    builder.add_node("tools", tool_node)
+    builder.add_edge(START, "llm")
 
-    async def stream(self, query: str, sessionId: str) -> AsyncIterable[Dict[str, Any]]:
-        """Stream the agent's response with proper event handling."""
-        inputs = {'messages': [HumanMessage(content=query)]}
-        config = {'configurable': {'thread_id': sessionId}}
-        
-        logger.info(f"Starting stream for query: {query}")
-        
-        try:
-            has_yielded_final = False
-            tool_call_in_progress = False
-            
-            async for chunk in self.graph.astream(inputs, config, stream_mode='values'):
-                logger.debug(f"Stream chunk: {chunk}")
-                
-                if 'messages' in chunk and chunk['messages']:
-                    message = chunk['messages'][-1]
-                    
-                    # Handle AI message with tool calls
-                    if (isinstance(message, AIMessage) and 
-                        hasattr(message, 'tool_calls') and 
-                        message.tool_calls):
-                        
-                        if not tool_call_in_progress:
-                            tool_call_in_progress = True
-                            logger.info("Tool call detected - yielding status")
-                            yield {
-                                'is_task_complete': False,
-                                'require_user_input': False,
-                                'content': 'Calculating the sum...',
-                            }
-                    
-                    # Handle tool response
-                    elif isinstance(message, ToolMessage):
-                        logger.info("Tool response received")
-                        yield {
-                            'is_task_complete': False,
-                            'require_user_input': False,
-                            'content': 'Processing calculation result...',
-                        }
-                    
-                    # Handle final AI response (without tool calls)
-                    elif (isinstance(message, AIMessage) and 
-                          not hasattr(message, 'tool_calls') and 
-                          message.content and 
-                          not has_yielded_final):
-                        
-                        logger.info("Final response ready")
-                        has_yielded_final = True
-                        yield {
-                            'is_task_complete': True,
-                            'require_user_input': False,
-                            'content': message.content,
-                        }
-                        break 
-            
-            # Ensure we always yield a final response
-            if not has_yielded_final:
-                logger.warning("No final response yielded - providing fallback")
-                yield {
-                    'is_task_complete': True,
-                    'require_user_input': False,
-                    'content': 'Calculation completed, but no result was generated.',
-                }
-        
-        except Exception as e:
-            logger.error(f"Error in stream: {e}", exc_info=True)
-            yield {
-                'is_task_complete': True,
-                'require_user_input': False,
-                'content': f'An error occurred during calculation: {str(e)}',
-            }
+    builder.add_conditional_edges(
+        "llm",
+        lambda state: "tools" if state["messages"][-1].tool_calls else END,
+    )
 
-    SUPPORTED_CONTENT_TYPES = ['text', 'text/plain']
+    builder.add_edge("tools", "llm")
+
+    async with AsyncSqliteSaver.from_conn_string(":memory:") as memory:
+        agent_executor = builder.compile(checkpointer=memory)
+
+        while True:
+            query = input("\nEnter your query (type 'bye' or 'exit' to quit): ").strip()
+            if query.lower() in {"bye", "exit"}:
+                print("Exiting the agent. Goodbye!")
+                break
+
+            thread_id = f"user_thread_{hash(query) % 10000}"  # simple thread id
+
+            logger.info(f"Running query for thread: {thread_id} -> {query}")
+            try:
+                result = await agent_executor.ainvoke(
+                    {"messages": [HumanMessage(content=query)]},
+                    config={"configurable": {"thread_id": thread_id}}
+                )
+                final_response = result["messages"][-1].content
+                logger.success(f"Final response for {thread_id}: {final_response}")
+                print(f"\n--- {thread_id} ---\n{final_response}")
+            except Exception as e:
+                logger.exception(f"Error while processing {thread_id}: {e}")
+
+if __name__ == "__main__":
+    logger.info("Starting ORS agent runner")
+    asyncio.run(run_ors_agent())
