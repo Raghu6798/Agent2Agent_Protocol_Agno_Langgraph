@@ -1,150 +1,250 @@
-#  Langraph Addition Agent
+### GeoPal: LangGraph Geospatial Agent
 
-A simple arithmetic agent built with Langraph that specializes in addition operations. This agent is part of the Agent2Agent Protocol implementation using JSON-RPC 2.0.
+A sophisticated geospatial agent built with LangGraph that leverages OpenRouteService capabilities through a custom MCP server. This agent is part of the Agent2Agent Protocol implementation using JSON-RPC 2.0.
 
-## 🎯 What Does the Addition Agent Do?
+## 🎯 What Does GeoPal Do?
 
-The agent is a focused arithmetic assistant that:
-- Performs addition operations using a dedicated calculator tool
-- Uses Google's Gemini 2.0 Flash model for natural language understanding
-- Provides clear, step-by-step calculation explanations
-- Handles basic addition requests with proper error handling
+GeoPal is a specialized geospatial assistant that:
 
-> ℹ️ This agent is built using Langraph and Google's Gemini model, specifically designed for addition operations.
+- Processes natural language queries about locations, routes, and points of interest
+- Leverages OpenRouteService tools through a custom MCP server
+- Provides intelligent routing, navigation, and location-based recommendations
+- Generates interactive visualizations for spatial data
+- Solves complex vehicle routing problems and optimizes travel itineraries
+
+
+> ℹ️ This agent is built using LangGraph, OpenRouteService, and the Agent2Agent protocol, designed specifically for geospatial intelligence tasks.
+
+
 
 ## 🚀 Getting Started
 
 ### ✅ Prerequisites
+
 - Python 3.8+
-- [uv](https://github.com/astral-sh/uv) package manager
-- Google API Key (set in `.env` as `GOOGLE_API_KEY`)
+- [OpenRouteService API key](https://openrouteservice.org/dev/#/signup)
+- OpenRouter API key (for LLM access)
+- Required Python packages (see requirements.txt)
+
 
 ### 🛠️ Running the Agent Server
 
-1. First, clone the repository and Navigate to the langgraph agents repo :
+1. First, clone the repository:
+
+
+```shellscript
+git clone https://github.com/yourusername/geopal-agent.git
+cd geopal-agent
 ```
-git clone https://github.com/Raghu6798/Agent2Agent_Protocol_Implementation.git
 
-cd Agent2Agent_Protocol_Implementation/langraph:
+2. Install dependencies:
+
+
+```shellscript
+pip install -r requirements.txt
 ```
 
-2. Start the server:
-   ```bash
-   uv run .
-   ```
+3. Set up environment variables:
 
-📡 The server will run on `http://localhost:10000`
+
+```shellscript
+# Create .env file with your API keys
+echo "OPENROUTER_API_KEY=your_openrouter_key_here" > .env
+echo "OPENROUTE_SERVICE_API=your_ors_key_here" >> .env
+```
+
+4. Start the MCP server:
+
+
+```shellscript
+python mcp_server.py
+```
+
+5. In a new terminal, start the A2A server:
+
+
+```shellscript
+python -m a2a.server.apps --host localhost --port 10000
+```
+
+📡 The A2A server will run on `http://localhost:10000`
 
 ### 🧪 Testing the Agent
 
-Run the test client in a new terminal to simulate a JSON-RPC request:
-```bash
-uv run test_client.py
+Run the test client in a new terminal to interact with the agent:
+
+```shellscript
+python a2a_client.py --agent http://localhost:10000
 ```
 
 ## 🔧 Implementation Details
 
-### Code Location
-The agent is defined in:
-```bash
-langraph/langgraph_agent.py
-```
+### Core Components
 
-### Key Methods
+#### 1. LangGraph Agent (`ORSAgent`)
 
-#### `.invoke(query: str, session_id: str) -> str`
-Processes an addition request and returns the result.
+The agent orchestrates the workflow and handles natural language understanding:
 
-Example:
 ```python
-result = agent.invoke("What's 5 plus 3?", "session_123")
-# Returns: "Let me calculate that for you...\n5 + 3 = 8\nThe sum is 8"
+# Located in langgraph_agent.py
+class ORSAgent:
+    """ORSAgent - a specialized assistant for OpenRouteService routing queries."""
+    
+    # Core methods
+    async def invoke(self, query: str, context_id: str) -> dict[str, Any]
+    async def stream(self, query: str, context_id: str) -> AsyncIterable[dict[str, Any]]
 ```
 
-#### `.stream(query: str, sessionId: str) -> AsyncIterator[dict]`
-Streams the calculation process in real-time, showing:
-- When the calculation starts
-- Tool usage status
-- Final result
+#### 2. MCP Server Tools
 
-## 📤 API Usage
+The MCP server provides specialized geospatial tools:
 
-### JSON-RPC 2.0 Interface
+| Tool | Description
+|-----|-----
+| `get_directions` | Calculates routes between locations
+| `geocode_address` | Converts addresses to coordinates
+| `get_isochrones` | Creates reachability maps
+| `get_pois` | Finds points of interest
+| `get_poi_names` | Gets simplified POI name lists
+| `optimize_vehicle_routes` | Solves complex routing problems
+| `create_simple_delivery_problem` | Creates delivery optimization problems
+| `optimize_traveling_salesman` | Solves TSP problems
 
-The agent can be accessed via the JSON-RPC 2.0 interface.
 
-#### Sample Request
-```bash
-curl -X POST http://127.0.0.1:8000/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": "test_001",
-    "method": "calculate",
-    "params": {
-      "query": "What is 7 plus 4?",
-      "sessionId": "session_001"
-    }
-  }'
+#### 3. A2A Server
+
+Handles communication with clients using the Agent2Agent protocol.
+
+## 📤 API Capabilities
+
+### 🗺️ Geospatial Intelligence
+
+#### Geocoding
+
+```python
+# Convert address to coordinates
+result = await geocode_address("Brandenburg Gate, Berlin, Germany")
 ```
 
-### 📥 Supported Content Types
-- `text`
-- `text/plain`
+#### Point of Interest Discovery
+
+```python
+# Find POIs near coordinates with 500m radius
+pois = await get_pois((13.377704, 52.516431), buffer=500, limit=10)
+```
+
+### 🚗 Advanced Routing
+
+#### Route Planning
+
+```python
+# Calculate route between Berlin and Munich
+route = await get_directions(
+    [(13.377704, 52.516431), (11.581981, 48.135125)], 
+    profile="driving-car"
+)
+```
+
+#### Isochrone Analysis
+
+```python
+# Create 15-minute reachability map
+isochrone = await get_isochrones(
+    [(13.377704, 52.516431)],
+    profile="walking",
+    range=[900]  # 15 minutes in seconds
+)
+```
+
+### 📦 Logistics Optimization
+
+#### Vehicle Routing
+
+```python
+# Optimize delivery routes for multiple vehicles
+solution = await optimize_vehicle_routes(jobs, vehicles)
+```
+
+#### Traveling Salesman Problem
+
+```python
+# Find optimal route visiting multiple locations
+optimal_route = await optimize_traveling_salesman(locations)
+```
 
 ## 🧠 How It Works
 
-1. **Input Processing**
-   - Receives natural language addition requests
-   - Uses Gemini model to understand the request
-   - Extracts numbers to be added
+1. **Query Processing**
 
-2. **Calculation**
-   - Uses the `add_two_numbers` tool for actual calculation
-   - Provides step-by-step explanation
-   - Returns formatted result
+1. Receives natural language geospatial queries
+2. Uses Mistral model to understand the request
+3. Determines required geospatial tools
 
-3. **Response Format**
-   - Starts with "Let me calculate that for you..."
-   - Shows the calculation process
-   - Ends with the final sum
+
+
+2. **Tool Execution**
+
+1. Calls appropriate OpenRouteService tools via MCP
+2. Processes and transforms geospatial data
+3. Generates visualizations when appropriate
+
+
+
+3. **Response Generation**
+
+1. Formats results in user-friendly language
+2. Provides detailed routing instructions
+3. Includes links to interactive maps when available
+
+
+
+
 
 ## 📁 Project Structure
 
-| File | Purpose |
-|------|---------|
-| `langgraph_agent.py` | Core addition agent implementation |
-| `__main__.py` | Server entry point |
-| `test_client.py` | Test client for local testing |
-| `.env` | API keys and environment variables |
+| File | Purpose
+|-----|-----
+| `langgraph_agent.py` | Core agent implementation
+| `mcp_server.py` | OpenRouteService MCP server
+| `a2a_server.py` | Agent2Agent protocol server
+| `a2a_client.py` | Test client for interaction
+| `.env` | API keys and environment variables
 
-## 🔐 Environment Setup
 
-Create a `.env` file in the project root with:
-```env
-GOOGLE_API_KEY=your_google_api_key_here
+## 🔐 Environment Variables
+
+Create a `.env` file with:
+
+```plaintext
+OPENROUTER_API_KEY=your_openrouter_key_here
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTE_SERVICE_API=your_ors_key_here
 ```
 
-## 📝 Example Usage
+## 📝 Example Queries
 
-### Basic Addition
-```python
-# Input
-"What's 5 plus 3?"
+### Route Planning
 
-# Output
-"Let me calculate that for you...
-5 + 3 = 8
-The sum is 8"
+```plaintext
+"What's the fastest route from Berlin to Munich by car?"
 ```
 
-### Error Handling
-```python
-# Input
-"What's 5 times 3?"
+### POI Discovery
 
-# Output
-"I'm sorry, I can only handle addition operations. Please use a different tool for multiplication."
+```plaintext
+"Find me hotels and restaurants within 500 meters of the Brandenburg Gate"
+```
+
+### Isochrone Analysis
+
+```plaintext
+"Show me areas I can reach within 15 minutes walking from my current location"
+```
+
+### Delivery Optimization
+
+```plaintext
+"I need to deliver packages to these 5 addresses. What's the most efficient route?"
 ```
 
 ## 🤝 Contributing
@@ -154,3 +254,29 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🔗 Related Projects
+
+- [LangGraph](https://github.com/langchain-ai/langgraph) - Framework for building stateful, multi-actor applications with LLMs
+- [OpenRouteService](https://openrouteservice.org/) - Services for geospatial analysis
+- [Agent2Agent Protocol](https://github.com/a2a-protocol/a2a-protocol) - Protocol for agent communication
+
+
+## 🌟 Features
+
+### Current Capabilities
+
+- ✅ Natural language understanding of geospatial queries
+- ✅ Advanced routing with multiple transportation modes
+- ✅ POI discovery with 600+ categories
+- ✅ Interactive map generation
+- ✅ Vehicle routing optimization
+- ✅ Streaming responses for real-time updates
+
+
+### Roadmap
+
+- 🔜 Multi-agent collaboration for complex travel planning
+- 🔜 Integration with real-time traffic data
+- 🔜 Support for public transportation routing
+- 🔜 User preference learning for personalized recommendations
